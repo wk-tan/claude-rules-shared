@@ -33,6 +33,8 @@ These guidelines establish the standards for managing Python dependencies with `
 All `pyproject.toml` files MUST follow PEP 621 standards for project metadata.
 
 ### Required Fields
+
+**Workspace root pyproject.toml:**
 ```toml
 [project]
 name = "app-data-pipeline"
@@ -45,11 +47,23 @@ authors = [
 ]
 ```
 
+**Project-level pyproject.toml:**
+```toml
+[project]
+name = "app-data-pipeline"
+version = "2.5.0"
+description = "Data pipeline for CDC replication"
+requires-python = "~=3.13.0"
+authors = [
+    { name = "Data Engineering Team", email = "data_eng@pulsifi.me" }
+]
+```
+
 ### Field Requirements
 - **name:** Use lowercase with hyphens (kebab-case) for project names.
 - **version:** Follow semantic versioning (MAJOR.MINOR.PATCH).
 - **description:** Brief description of the project's purpose.
-- **readme:** Path to README file (typically `"README.md"`). Include in all projects for documentation.
+- **readme:** Path to README file (typically `"README.md"`). **ONLY** include in workspace root `pyproject.toml`. **NEVER** include in project-level `pyproject.toml` files.
 - **requires-python:** Always use tilde operator `~=` for minor version pinning (e.g., `~=3.13.0` allows `>=3.13.0, <3.14.0`).
 - **authors:** Use consistent team attribution across all repositories:
   - `{ name = "Data Engineering Team", email = "data_eng@pulsifi.me" }`
@@ -165,7 +179,10 @@ dependencies = [
 name = "data-transformation"
 version = "3.151.0"
 description = "IP geolocation transformation function"
-readme = "README.md"
+requires-python = "~=3.13.0"
+authors = [
+    { name = "Data Engineering Team", email = "data_eng@pulsifi.me" }
+]
 dependencies = [
     "Flask>=3.1.2",
     "functions-framework>=3.10.0",
@@ -178,6 +195,7 @@ dependencies = [
 
 **Key differences:**
 - Workspace root lists **all** runtime dependencies used anywhere
+- Workspace root includes `readme` field; project files **never** include `readme`
 - Project files list **only** dependencies that specific project needs
 - **CRITICAL:** Project dependencies MUST be a **subset** of workspace root dependencies
 - Project files should never introduce dependencies not in workspace root
@@ -508,6 +526,11 @@ include = [
     "projects",
     "update_version.py",
 ]
+
+[tool.pytest.ini_options]
+addopts = "--tb=short -v"
+testpaths = ["test"]
+required_plugins = ["pytest-cov", "pytest-env"]
 ```
 
 ### Example 2: Cloud Function Project pyproject.toml
@@ -520,7 +543,6 @@ build-backend = "hatchling.build"
 name = "data-transformation"
 version = "3.151.0"
 description = "Retrieves geographical information for a list of IP addresses."
-readme = "README.md"
 requires-python = "~=3.13.0"
 authors = [
     { name = "Data Engineering Team", email = "data_eng@pulsifi.me" }
@@ -541,6 +563,7 @@ dependencies = [
 
 **Key observations:**
 - `[build-system]` at the top for readability
+- No `readme` field - **ONLY** in workspace root
 - No `[dependency-groups]` - inherited from workspace
 - No `[tool.hatch.build]` - using copy.sh deployment
 - No `[tool.uv]` - inherited from workspace
@@ -714,6 +737,15 @@ dependencies = [
     "google-cloud-logging>=3.13.0",
     "requests>=2.31.0",  # NOT in workspace root - inconsistent versions!
 ]
+
+# ❌ Don't include readme in project-level pyproject.toml
+# Project pyproject.toml - WRONG!
+[project]
+name = "my-project"
+version = "1.0.0"
+description = "My project description"
+readme = "README.md"  # WRONG! Should only be in workspace root
+requires-python = "~=3.13.0"
 ```
 
 ### ✅ DO THIS INSTEAD:
@@ -766,6 +798,14 @@ dependencies = [
 
 # Project dependencies (subset of workspace root)
 [project]
+name = "my-project"
+version = "1.0.0"
+description = "My project description"
+# No readme field - ONLY in workspace root
+requires-python = "~=3.13.0"
+authors = [
+    { name = "Data Engineering Team", email = "data_eng@pulsifi.me" }
+]
 dependencies = [
     "Flask>=3.1.2",
     "google-cloud-logging>=3.13.0",
