@@ -2,10 +2,13 @@
 
 **When to use this file:** Reference this for deploying Polylith projects to Google Cloud Functions, Docker containers, or other platforms.
 
+> **IMPORTANT:** This file covers **Stack 2: Application Deployment** patterns (Cloud Functions, Docker, Cloud Run). For **Stack 1: Infrastructure Foundation** (Pulumi provisioning), see [01-setup.md](01-setup.md#1-infrastructure-and-application-separation) and [06-automation.md](06-automation.md#example-4-infrastructure-provision-workflow).
+
 **Related documentation:**
 - For Polylith architecture, see [01-setup.md](01-setup.md)
 - For dependency management, see [03-dependencies.md](03-dependencies.md)
 - For CI/CD workflows, see [06-automation.md](06-automation.md)
+- For infrastructure/application separation, see [01-setup.md](01-setup.md#1-infrastructure-and-application-separation)
 
 ---
 
@@ -14,8 +17,9 @@
 1. [Deployment Strategy Decision Tree](#1-deployment-strategy-decision-tree)
 2. [Cloud Functions Deployment](#2-cloud-functions-deployment)
 3. [Docker Container Deployment](#3-docker-container-deployment)
-4. [Deployment Strategy Comparison](#4-deployment-strategy-comparison)
-5. [Best Practices](#5-best-practices)
+4. [Cloud Run Service Configuration (Kustomize)](#4-cloud-run-service-configuration-kustomize)
+5. [Deployment Strategy Comparison](#5-deployment-strategy-comparison)
+6. [Best Practices](#6-best-practices)
 
 ---
 
@@ -179,6 +183,8 @@ __all__ = ["get_ip_geo_info"]
 
 ## 3. Docker Container Deployment
 
+> **Note:** This section covers **application deployment mechanics** (building Docker images and deploying containers). For the broader infrastructure/application separation pattern and how this fits into the 2-stack architecture, see [01-setup.md](01-setup.md#1-infrastructure-and-application-separation).
+
 When deploying containerized applications, the Dockerfile should be placed in the project directory: `projects/{project_name}/Dockerfile`
 
 ### Docker Build Context
@@ -296,7 +302,169 @@ CMD ["python", "main.py"]
 
 ---
 
-## 4. Deployment Strategy Comparison
+## 4. Cloud Run Service Configuration (Kustomize)
+
+When deploying to Cloud Run, the `infrastructure/cloudrun/` directory uses Kustomize to manage environment-specific service configurations separately from application code.
+
+### Directory Structure
+
+```
+infrastructure/cloudrun/
+├── base/
+│   ├── service.yaml        # Base Cloud Run service definition
+│   └── kustomization.yaml  # Base kustomization config
+└── overlays/
+    ├── sandbox/
+    │   └── kustomization.yaml  # Sandbox-specific patches
+    └── production/
+        └── kustomization.yaml  # Production-specific patches
+```
+
+### Base Service Configuration
+
+The base `service.yaml` defines the common Cloud Run service structure:
+
+```yaml
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: console-cr
+spec:
+  template:
+    metadata:
+      labels:
+        version: VERSION_PLACEHOLDER  # Replaced during deployment
+    spec:
+      containers:
+      - name: console-cr
+        image: IMAGE_URL  # Set by kustomize edit
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2Gi
+```
+
+**Key elements:**
+- `IMAGE_URL`: Placeholder updated by `kustomize edit set image`
+- `VERSION_PLACEHOLDER`: Replaced by actual version during deployment
+- Resource limits, health checks, environment variables defined here
+
+### Environment-Specific Overlays
+
+Overlays patch the base configuration for each environment:
+
+**Sandbox overlay** (`overlays/sandbox/kustomization.yaml`):
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: Service
+      name: console-cr
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: ENVIRONMENT
+            value: sandbox
+          - name: GCP_PROJECT_ID
+            value: project-sandbox
+```
+
+**Production overlay** (`overlays/production/kustomization.yaml`):
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: Service
+      name: console-cr
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: ENVIRONMENT
+            value: production
+          - name: GCP_PROJECT_ID
+            value: project-production
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "2"
+```
+
+### Deployment Integration
+
+During application deployment (see `deploy.yaml` and `sandbox-deploy.yaml`):
+
+```bash
+# Step 1: Build and push Docker image
+docker build -f projects/console/Dockerfile -t console-cr:${VERSION} .
+docker push asia-southeast1-docker.pkg.dev/.../console-cr:${VERSION}
+
+# Step 2: Update image reference in Kustomize
+cd infrastructure/cloudrun/overlays/${ENVIRONMENT}
+kustomize edit set image \
+  IMAGE_URL=asia-southeast1-docker.pkg.dev/.../console-cr:${VERSION}
+
+# Step 3: Generate final manifest
+kustomize build . | sed "s|VERSION_PLACEHOLDER|${VERSION}|g" > /tmp/service.yaml
+
+# Step 4: Deploy to Cloud Run
+gcloud run services replace /tmp/service.yaml --region=asia-southeast1
+```
+
+### Key Benefits
+
+1. **Separation of Concerns**
+   - Application code: `projects/console/Dockerfile` (what to run)
+   - Service configuration: `infrastructure/cloudrun/` (how to run it)
+   - Independent updates possible
+
+2. **Environment Management**
+   - Base configuration shared across environments
+   - Environment-specific patches in overlays
+   - Easy to add new environments
+
+3. **Version Control**
+   - All configurations tracked in git
+   - Review changes via pull requests
+   - Audit trail for configuration changes
+
+4. **Deployment Flexibility**
+   - Build image once, configure per environment
+   - Update configuration without rebuilding image
+   - Test configuration changes in sandbox first
+
+### Common Patterns
+
+**Adding a new environment:**
+1. Create `infrastructure/cloudrun/overlays/staging/kustomization.yaml`
+2. Define environment-specific patches
+3. Update CI/CD workflows to use new overlay
+
+**Updating resource limits:**
+1. Modify overlay patch (not base)
+2. Run `kustomize build overlays/production` to preview
+3. Commit and deploy via workflow
+
+**Debugging configuration:**
+```bash
+# Preview final manifest before deployment
+cd infrastructure/cloudrun/overlays/production
+kustomize build .
+```
+
+---
+
+## 5. Deployment Strategy Comparison
 
 | Aspect | Cloud Functions | Docker Container |
 |--------|----------------|------------------|
@@ -308,7 +476,7 @@ CMD ["python", "main.py"]
 
 ---
 
-## 5. Best Practices
+## 6. Best Practices
 
 ### For Both Strategies
 
@@ -335,35 +503,19 @@ CMD ["python", "main.py"]
 
 ### CI/CD Integration
 
-For Cloud Functions in CI/CD pipeline:
-```bash
-# Navigate to project
-cd projects/data_transformation
+**Application deployment** is handled through GitHub Actions workflows. For the complete 2-stack infrastructure and application separation pattern, see [01-setup.md](01-setup.md#1-infrastructure-and-application-separation).
 
-# Copy bricks
-./copy.sh
+**Infrastructure provisioning** (Stack 1):
+- Uses Pulumi to provision foundational GCP resources (Cloud Storage, Service Accounts, Artifact Registry, Cloud Run service shells)
+- Triggered by workflow_dispatch (production) or PR labels (sandbox)
+- See [06-automation.md](06-automation.md#example-4-infrastructure-provision-workflow) for complete workflow example
 
-# Generate requirements.txt
-uv export --format requirements-txt --no-hashes --no-emit-project -o requirements.txt
+**Application deployment** (Stack 2):
+- Cloud Functions: Uses `copy.sh` to copy bricks, `uv export` to generate requirements.txt, then `gcloud functions deploy`
+- Cloud Run: Uses Docker build with Kustomize manifests, builds image, pushes to Artifact Registry, deploys with `gcloud run services replace`
+- See [06-automation.md](06-automation.md#5-complete-workflow-examples) for workflow patterns
 
-# Deploy to Cloud Functions
-gcloud functions deploy my-function \
-  --runtime python313 \
-  --trigger-http \
-  --entry-point get_ip_geo_info \
-  --source .
-```
-
-For Docker in CI/CD pipeline:
-```bash
-# Build from workspace root
-docker build -f projects/app_cdc_ecs/Dockerfile -t myapp:latest .
-
-# Push to registry
-docker push myapp:latest
-
-# Deploy to Cloud Run / ECS / Kubernetes
-```
+**Key principle:** Infrastructure changes are rare and deliberate; application deployments are frequent and automated.
 
 ### Troubleshooting
 

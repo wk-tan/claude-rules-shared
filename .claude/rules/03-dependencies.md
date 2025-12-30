@@ -276,6 +276,42 @@ default-groups = "all"
 | `[tool.polylith.bricks]`   | ✅ Required     | ✅ Required    | Different paths in each   |
 | `[tool.hatch.build]`       | ✅ Required     | ⚠️ Optional    | Omit if using copy.sh     |
 
+### Infrastructure Configuration (Special Case)
+
+The `infrastructure/pulumi/pyproject.toml` file is separate from both workspace and project configurations and follows different patterns:
+
+**Location:** `infrastructure/pulumi/pyproject.toml`
+
+**Key characteristics:**
+- **Not included in workspace members:** The `infrastructure/pulumi/` directory is NOT listed in workspace root `[tool.uv.workspace] members`
+- **Isolated dependency management:** Has its own isolated dependency management, separate from application stack
+- **Infrastructure-specific dependencies:** Contains Pulumi and GCP provider packages not needed by application code
+- **Independent lifecycle:** Updated separately via `infrastructure-provision.yaml` workflow
+
+**Example configuration:**
+```toml
+[project]
+name = "de-backoffice-infrastructure"
+version = "1.0.0"
+description = "Infrastructure provisioning for DE Backoffice"
+requires-python = "~=3.13.0"
+dependencies = [
+    "pulumi>=3.213.0",
+    "pulumi-gcp>=9.6.0",
+]
+```
+
+**Why separate:**
+- Infrastructure provisioning (Stack 1) has different lifecycle than application deployment (Stack 2)
+- Pulumi dependencies are large and not needed for application runtime
+- Infrastructure changes are rare; application changes are frequent
+- Clear separation of concerns between platform and application teams
+
+**For more details:**
+- Infrastructure/application separation: [01-setup.md](01-setup.md#1-infrastructure-and-application-separation)
+- Infrastructure provisioning workflow: [06-automation.md](06-automation.md#example-4-infrastructure-provision-workflow)
+- Deployment patterns: [05-deployment.md](05-deployment.md)
+
 ## 3. Dependency Management with uv
 
 ### Dependency Groups (Not Optional Dependencies)

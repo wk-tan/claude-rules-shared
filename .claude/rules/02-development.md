@@ -5,6 +5,7 @@
 **Related documentation:**
 - For tool configuration (ruff, pyright), see workspace root `pyproject.toml`
 - For Polylith structure, see [01-setup.md](01-setup.md)
+- For infrastructure/application separation and architecture patterns, see [01-setup.md](01-setup.md#1-infrastructure-and-application-separation)
 
 ---
 

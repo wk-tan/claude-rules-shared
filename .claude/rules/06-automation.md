@@ -735,14 +735,23 @@ Relates to #456
 5. **Publish release:** Creates GitHub release with notes
 
 ### Configuration
-Our `python-semantic-release` configuration is in [pyproject.toml:252](pyproject.toml#L252):
+Our `python-semantic-release` configuration is in workspace root `pyproject.toml`:
 
 ```toml
 [tool.semantic_release]
+version_variable = ["pyproject.toml:project.version"]
 version_toml = ["pyproject.toml:project.version"]
 branch = "main"
-build_command = "echo 'No build command'"
+upload_to_pypi = false
+upload_to_release = true
 ```
+
+**Configuration fields:**
+- `version_variable`: Updates the version in pyproject.toml using variable replacement
+- `version_toml`: Updates the version in pyproject.toml using TOML parsing
+- `branch`: Branch to create releases from (typically "main")
+- `upload_to_pypi`: Disabled - we don't publish to PyPI
+- `upload_to_release`: Enabled - creates GitHub releases with release notes
 
 ### Triggering Releases
 Releases are triggered automatically when:
