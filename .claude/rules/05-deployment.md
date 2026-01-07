@@ -338,6 +338,22 @@ spec:
       containers:
       - name: console-cr
         image: IMAGE_URL  # Set by kustomize edit
+        ports:
+        - containerPort: 8080
+          name: http1
+        startupProbe:
+          httpGet:
+            path: /health_check
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health_check
+            port: 8080
         resources:
           limits:
             cpu: "1"
@@ -348,6 +364,40 @@ spec:
 - `IMAGE_URL`: Placeholder updated by `kustomize edit set image`
 - `VERSION_PLACEHOLDER`: Replaced by actual version during deployment
 - Resource limits, health checks, environment variables defined here
+
+### Startup Probe Configuration (Important)
+
+Cloud Run uses startup probes to determine when a container is ready to receive traffic. **Aggressive probe settings can cause deployment failures** even when the application is healthy.
+
+**Recommended startup probe settings:**
+```yaml
+startupProbe:
+  httpGet:
+    path: /health_check
+    port: 8080
+  initialDelaySeconds: 5   # Wait 5 seconds before first probe
+  timeoutSeconds: 5        # Allow 5 seconds for response
+  periodSeconds: 10        # Probe every 10 seconds
+  successThreshold: 1      # 1 success to pass
+  failureThreshold: 3      # Allow 3 failures before giving up
+```
+
+**Why these values:**
+- `initialDelaySeconds: 5` - Gives the application time to start before probing
+- `timeoutSeconds: 5` - Allows slower health check responses during startup
+- `periodSeconds: 10` - Reduces probe frequency to avoid overwhelming starting container
+- `failureThreshold: 3` - Provides ~35 seconds total startup window (5 + 3×10)
+
+**Common mistakes to avoid:**
+- ❌ `failureThreshold: 1` - Container fails immediately on first probe failure
+- ❌ `initialDelaySeconds: 0` - Probes before application can start
+- ❌ `timeoutSeconds: 1` - Too short for applications with slow initialization
+- ❌ `periodSeconds: 3` - Too aggressive, causes unnecessary failures
+
+**Health check endpoint requirements:**
+- Must return HTTP 200 status code when healthy
+- Should be fast and lightweight (no heavy computation)
+- Should NOT depend on external services (database, APIs)
 
 ### Environment-Specific Overlays
 
@@ -533,3 +583,13 @@ kustomize build .
 - Only copy bricks actually used by the project
 - Use `--no-default-groups` to exclude dev/test dependencies
 - For Docker, use multi-stage builds to exclude build tools
+
+**Issue: "Container failed startup probe" in Cloud Run**
+- Check startup probe configuration - settings may be too aggressive
+- Review Cloud Run logs for application errors during startup
+- Common causes:
+  - `failureThreshold: 1` - increase to 3 or more
+  - `initialDelaySeconds: 0` - increase to 5 or more
+  - Missing environment variables causing application crash
+  - Health check endpoint not implemented or returning non-200 status
+- Recommended settings: see [Startup Probe Configuration](#startup-probe-configuration-important)
