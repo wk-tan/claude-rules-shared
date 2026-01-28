@@ -13,6 +13,7 @@ See the detailed rules in `.claude/rules/` for comprehensive guidelines. Below i
 | [04-testing.md](.claude/rules/04-testing.md) | Testing standards 🚧 | Placeholder for pytest patterns, coverage requirements, data testing (to be expanded) |
 | [05-deployment.md](.claude/rules/05-deployment.md) | Deployment patterns | Cloud Functions deployment, Docker containers, deployment strategy decision tree, infrastructure vs application deployment |
 | [06-automation.md](.claude/rules/06-automation.md) | CI/CD workflows & version control | GitHub Actions setup, infrastructure provisioning workflow, uv installation (0.7.8), `uv sync --frozen`, conventional commits, semantic versioning, PR conventions |
+| [07-infrastructure.md](.claude/rules/07-infrastructure.md) | Infrastructure patterns | Pulumi IaC patterns (config, YAML anchors, resource loops), Kustomize for Cloud Run (Services, Jobs), supplementary file loading (BigQuery schemas, monitoring dashboards) |
 
 ### Quick Navigation
 
@@ -22,6 +23,7 @@ See the detailed rules in `.claude/rules/` for comprehensive guidelines. Below i
 **For testing standards**: See `04-testing.md` (🚧 placeholder - to be expanded)
 **For deployment**: See `05-deployment.md`
 **For CI/CD & git workflow**: See `06-automation.md`
+**For infrastructure patterns**: See `07-infrastructure.md` (Pulumi IaC, Kustomize for Cloud Run)
 
 ### Task Reference
 
@@ -37,6 +39,9 @@ See the detailed rules in `.claude/rules/` for comprehensive guidelines. Below i
 | Creating GitHub Actions workflows | [06-automation.md](.claude/rules/06-automation.md) |
 | Writing commit messages | [06-automation.md](.claude/rules/06-automation.md) |
 | Creating pull requests | [06-automation.md](.claude/rules/06-automation.md) |
+| Writing Pulumi IaC code | [07-infrastructure.md](.claude/rules/07-infrastructure.md) |
+| Configuring Cloud Run Jobs | [07-infrastructure.md](.claude/rules/07-infrastructure.md) |
+| Writing Kustomize overlays | [07-infrastructure.md](.claude/rules/07-infrastructure.md) |
 
 ---
 

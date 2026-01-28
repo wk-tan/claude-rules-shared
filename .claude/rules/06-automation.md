@@ -355,6 +355,8 @@ jobs:
 - Changes that affect multiple applications or services
 - Infrastructure updates that don't require application redeployment
 
+**For Pulumi IaC patterns and configuration details, see [07-infrastructure.md](07-infrastructure.md#5-pulumi-iac-patterns).**
+
 ## 6. Common Patterns and Best Practices
 
 ### Multi-Job Workflows

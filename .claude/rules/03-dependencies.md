@@ -276,52 +276,15 @@ default-groups = "all"
 
 ### Infrastructure Configuration (Special Case)
 
-The `infrastructure/pyproject.toml` file is separate from both workspace and project configurations and follows different patterns:
+The `infrastructure/pyproject.toml` file is separate from both workspace and project configurations. It has its own isolated dependency management with Pulumi and GCP provider packages, and is NOT included in workspace members.
 
-**Location:** `infrastructure/pyproject.toml` (at infrastructure root, same level as `pulumi/`)
+**Key points:**
+- Located at `infrastructure/pyproject.toml` (same level as `pulumi/`)
+- Contains infrastructure-specific dependencies (Pulumi, providers)
+- Updated separately via `infrastructure-provision.yaml` workflow
+- No `readme` field - documentation is in Claude rules
 
-**Key characteristics:**
-- **Not included in workspace members:** The `infrastructure/` directory is NOT listed in workspace root `[tool.uv.workspace] members`
-- **Isolated dependency management:** Has its own isolated dependency management, separate from application stack
-- **Infrastructure-specific dependencies:** Contains Pulumi and GCP provider packages not needed by application code
-- **Independent lifecycle:** Updated separately via `infrastructure-provision.yaml` workflow
-
-**Example configuration:**
-```toml
-[project]
-name = "de-backoffice-infrastructure"
-version = "1.0.0"
-description = "Infrastructure provisioning for DE Backoffice"
-requires-python = "~=3.13.0"
-# Note: No 'readme' field - infrastructure pyproject.toml is isolated
-dependencies = [
-    "pulumi>=3.213.0",
-    "pulumi-gcp>=9.6.0",
-]
-```
-
-**Important notes:**
-- **No `readme` field:** Infrastructure `pyproject.toml` does NOT include a `readme` field. The `infrastructure/` directory should not contain a `README.md` file.
-- **Documentation location:** Infrastructure patterns are documented in Claude rules (this file and [01-setup.md](01-setup.md)), not in scattered README files within the infrastructure directory.
-
-**Directory structure:**
-```
-infrastructure/
-├── pyproject.toml        # Infrastructure dependencies
-├── pulumi/               # Pulumi IaC code
-└── cloudrun/             # Kustomize manifests
-```
-
-**Why separate:**
-- Infrastructure provisioning (Stack 1) has different lifecycle than application deployment (Stack 2)
-- Pulumi dependencies are large and not needed for application runtime
-- Infrastructure changes are rare; application changes are frequent
-- Clear separation of concerns between platform and application teams
-
-**For more details:**
-- Infrastructure/application separation: [01-setup.md](01-setup.md#1-infrastructure-and-application-separation)
-- Infrastructure provisioning workflow: [06-automation.md](06-automation.md#example-4-infrastructure-provision-workflow)
-- Deployment patterns: [05-deployment.md](05-deployment.md)
+**For comprehensive documentation, see [07-infrastructure.md](07-infrastructure.md#4-infrastructure-dependencies).**
 
 ## 3. Dependency Management with uv
 
