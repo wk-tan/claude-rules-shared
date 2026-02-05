@@ -92,9 +92,31 @@ docs/DA-688-update-readme
 1. Commits pushed to `main` branch
 2. Semantic release analyzes commit messages
 3. Version bump determined from commit types
-4. CHANGELOG.md generated
-5. Git tag created (e.g., v1.2.3)
-6. GitHub release published
+4. **Workspace members updated** with `uv version --package`
+5. **Root version updated** by `semantic-release version`
+6. CHANGELOG.md generated
+7. Git tag created (e.g., v1.2.3)
+8. GitHub release published
+
+### Workspace Version Management
+
+This project uses a **uv workspace** with multiple projects in `projects/*`. Version updates happen in two stages:
+
+**1. Update workspace members:**
+```bash
+NEW_VERSION=$(semantic-release --noop version --print)
+for project in projects/*; do
+  uv version --package $(basename "$project") "$NEW_VERSION" --frozen
+done
+```
+
+**2. Update root and publish:**
+```bash
+semantic-release version  # Updates root pyproject.toml
+semantic-release publish  # Creates GitHub release
+```
+
+This ensures all workspace members stay synchronized with the root version.
 
 ## Configuration
 
@@ -112,12 +134,18 @@ upload_to_release = true
 ## Manual Release (Rare)
 
 ```bash
-# Dry run
-semantic-release --noop version --print
+# 1. Preview next version
+NEW_VERSION=$(semantic-release --noop version --print)
+echo "Next version: $NEW_VERSION"
 
-# Actual release
-semantic-release version
-semantic-release publish
+# 2. Update workspace members
+for project in projects/*; do
+  uv version --package $(basename "$project") "$NEW_VERSION" --frozen
+done
+
+# 3. Create release
+semantic-release version   # Updates root + creates tag
+semantic-release publish   # Creates GitHub release
 ```
 
 ## Pull Request Conventions
