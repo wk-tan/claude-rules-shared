@@ -128,6 +128,18 @@ jobs:
           version: "0.7.8"
       - run: uv sync --frozen --group release
       - run: echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
+      - name: "Sync workspace member versions"
+        run: |
+          NEW_VERSION=$(semantic-release --noop version --print)
+          if [ -n "$NEW_VERSION" ]; then
+            echo "Syncing workspace members to version: ${NEW_VERSION}"
+            for project in projects/*; do
+              uv version --package $(basename "$project") "$NEW_VERSION" --frozen
+            done
+          fi
+
+      - run: semantic-release version
       - run: semantic-release publish
 ```
 

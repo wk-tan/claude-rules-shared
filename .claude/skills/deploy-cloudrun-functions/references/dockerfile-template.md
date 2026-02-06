@@ -1,4 +1,4 @@
-# Dockerfile Template for Cloud Run Jobs
+# Dockerfile Template for Cloud Run Functions
 
 ## Standard Template
 
@@ -11,7 +11,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /usr/local/bin/
 WORKDIR /app
 
 # Copy project files for dependency resolution
-COPY projects/{job_name}/pyproject.toml ./pyproject.toml
+COPY projects/{function_name}/pyproject.toml ./pyproject.toml
 COPY uv.lock ./uv.lock
 
 # Install dependencies
@@ -23,9 +23,14 @@ COPY components/{namespace}/{component2}/ ./{namespace}/{component2}/
 COPY bases/{namespace}/{base_name}/ ./{namespace}/{base_name}/
 RUN mv {namespace}/{base_name}/core.py main.py
 
-# Enable venv in PATH
+ENV PORT=8080
+EXPOSE 8080
+
+# Enable venv in PATH so functions-framework can be found
 ENV PATH="/app/.venv/bin:$PATH"
-CMD ["python", "main.py"]
+
+# Run with functions-framework
+CMD exec functions-framework --target=${FUNCTION_TARGET} --port=${PORT}
 ```
 
 ## Key Principles
@@ -38,19 +43,19 @@ CMD ["python", "main.py"]
 6. **Build from workspace root** — Access all bricks
 7. **Use trailing slashes on directory COPYs** — Ensures Docker treats destination as directory
 
-## Differences from Function and Service
+## Differences from Service and Job
 
-| Aspect | Job | Function | Service |
-|--------|-----|----------|---------|
-| Framework | Direct `python main.py` | `functions-framework` | App-specific (Flask, Streamlit, etc.) |
-| CMD | `["python", "main.py"]` | `exec functions-framework --target=${FUNCTION_TARGET} --port=${PORT}` | Varies by framework |
-| PORT/EXPOSE | Not needed | Required | Required |
-| Entry point | Hardcoded | Dynamic via `FUNCTION_TARGET` env var | Hardcoded |
+| Aspect | Function | Service | Job |
+|--------|----------|---------|-----|
+| Framework | `functions-framework` | App-specific (Flask, Streamlit, etc.) | Direct `python main.py` |
+| CMD | `exec functions-framework --target=${FUNCTION_TARGET} --port=${PORT}` | Varies by framework | `["python", "main.py"]` |
+| PORT/EXPOSE | Required | Required | Not needed |
+| Entry point | Dynamic via `FUNCTION_TARGET` env var | Hardcoded | Hardcoded |
 
 ## Build Command
 
 Always run from workspace root:
 
 ```bash
-docker build -f projects/{job_name}/Dockerfile -t {image} .
+docker build -f projects/{function_name}/Dockerfile -t {image} .
 ```

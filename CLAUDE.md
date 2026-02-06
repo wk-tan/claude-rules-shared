@@ -4,8 +4,10 @@ Python monorepo using Polylith architecture. See Core Rules for concepts and con
 
 ## Rules & Skills
 
-- **Rules** (`.claude-shared/.claude/rules/00-core.md`) — Always-loaded conventions
-- **Skills** (`.claude-shared/.claude/skills/`) — On-demand procedures
+- **Rules** (`.claude/rules/00-core.md`) — Always-loaded conventions
+- **Skills** (`.claude/skills/`) — On-demand procedures
+
+When a task matches a skill trigger below, read the skill's `SKILL.md` before proceeding. Load linked reference files only when needed for detail.
 
 ### Available Skills
 
@@ -20,4 +22,4 @@ Python monorepo using Polylith architecture. See Core Rules for concepts and con
 | `pulumi-infrastructure` | Infrastructure provisioning |
 | `semantic-release` | Release workflows, versioning |
 | `pre-commit-hooks` | Setting up git hooks |
-| `python-code-standards` | Code style, docstrings, naming, logging |
+| `python-code-standards` | Writing/reviewing Python code: style, type hints, docstrings, naming, logging |

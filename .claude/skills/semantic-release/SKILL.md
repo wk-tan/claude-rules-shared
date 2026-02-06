@@ -66,9 +66,9 @@ chore: update dependencies
 
 ### Workspace Version Management
 
-This project uses a **uv workspace** with multiple projects in `projects/*`. Version updates happen in two stages:
+This project uses a **uv workspace** with multiple projects in `projects/*`. Version updates happen in two stages within the Release workflow:
 
-**1. Update workspace members:**
+**Stage 1 — Sync workspace member versions:**
 ```bash
 NEW_VERSION=$(semantic-release --noop version --print)
 for project in projects/*; do
@@ -76,13 +76,17 @@ for project in projects/*; do
 done
 ```
 
-**2. Update root and publish:**
+`semantic-release --noop version --print` determines the next version from commit history without making changes. `uv version --package` stamps that version into each project's `pyproject.toml`.
+
+**Stage 2 — Bump root, commit, tag, and publish:**
 ```bash
-semantic-release version  # Updates root pyproject.toml
+semantic-release version  # Updates root pyproject.toml, commits all changes, creates tag
 semantic-release publish  # Creates GitHub release
 ```
 
-This ensures all workspace members stay synchronized with the root version.
+`semantic-release version` stages and commits **all** modified `pyproject.toml` files (root + projects), so the version sync is atomic in a single release commit.
+
+**Ordering is critical:** Stage 1 must run before Stage 2. See the Release workflow in the `github-actions-cicd` skill for the complete integration.
 
 ## Configuration
 

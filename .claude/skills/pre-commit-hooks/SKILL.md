@@ -131,12 +131,6 @@ git add -u
 git commit -m "your commit message"
 ```
 
-### Temporarily skip hooks (not recommended)
-
-```bash
-git commit --no-verify -m "message"
-```
-
 ## Optional: Commit Message Validation
 
 Add conventional commit validation:

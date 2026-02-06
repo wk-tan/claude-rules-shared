@@ -17,7 +17,7 @@ projects/{job_name}/
 ├── pyproject.toml      # Dependencies and brick references
 └── Dockerfile          # Container definition
 
-infrastructure/cloudrunjob/{job_name}/
+infrastructure/cloudrun_job/{job_name}/
 ├── base/
 │   ├── job.yaml           # Base job definition
 │   └── kustomization.yaml
@@ -37,14 +37,14 @@ infrastructure/cloudrunjob/{job_name}/
 Create `projects/{job_name}/Dockerfile`:
 
 ```dockerfile
-FROM python:3.13-slim
+FROM python:3.13-slim@sha256:{digest}
 
-# Install uv from official image (faster, more secure than shell script)
+# Install uv from official image
 COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /usr/local/bin/
 
 WORKDIR /app
 
-# Copy dependencies first (layer caching)
+# Copy project files for dependency resolution
 COPY projects/{job_name}/pyproject.toml ./pyproject.toml
 COPY uv.lock ./uv.lock
 
@@ -55,14 +55,16 @@ RUN uv sync --frozen --no-default-groups --no-install-project
 COPY components/{namespace}/{component1}/ ./{namespace}/{component1}/
 COPY components/{namespace}/{component2}/ ./{namespace}/{component2}/
 COPY bases/{namespace}/{base_name}/ ./{namespace}/{base_name}/
+RUN mv {namespace}/{base_name}/core.py main.py
 
-# Run as Cloud Run Job using module execution
-CMD [".venv/bin/python", "-m", "{namespace}.{base_name}.core"]
+# Enable venv in PATH
+ENV PATH="/app/.venv/bin:$PATH"
+CMD ["python", "main.py"]
 ```
 
 ### Step 2: Create Base Job Manifest
 
-Create `infrastructure/cloudrunjob/{job_name}/base/job.yaml`:
+Create `infrastructure/cloudrun_job/{job_name}/base/job.yaml`:
 
 ```yaml
 apiVersion: run.googleapis.com/v1
@@ -102,7 +104,7 @@ spec:
 
 ### Step 3: Create Base Kustomization
 
-Create `infrastructure/cloudrunjob/{job_name}/base/kustomization.yaml`:
+Create `infrastructure/cloudrun_job/{job_name}/base/kustomization.yaml`:
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -116,13 +118,13 @@ resources:
 
 Create overlays for each required environment. Common options are sandbox, staging, and production — not all projects need all three.
 
-`infrastructure/cloudrunjob/{job_name}/overlays/{environment}/kustomization.yaml`:
+`infrastructure/cloudrun_job/{job_name}/overlays/{environment}/kustomization.yaml`:
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: data-{environment}-warehouse
+namespace: {gcp_project_id}
 
 resources:
   - ../../base
@@ -136,7 +138,7 @@ patches:
   - patch: |-
       - op: add
         path: /spec/template/spec/template/spec/serviceAccountName
-        value: {service_account}@data-{environment}-warehouse.iam.gserviceaccount.com
+        value: {service_account_email}
     target:
       kind: Job
       name: {job_name}
@@ -161,8 +163,13 @@ patches:
       - op: add
         path: /spec/template/spec/template/spec/containers/0/env/-
         value:
-          name: GCP_REGION
-          value: {gcp_region}
+          name: GCP_REGION_ABBREV
+          value: GCP_REGION_ABBREV_PLACEHOLDER
+      - op: add
+        path: /spec/template/spec/template/spec/containers/0/env/-
+        value:
+          name: GCP_REGION_SUFFIX
+          value: GCP_REGION_SUFFIX_PLACEHOLDER
     target:
       kind: Job
       name: {job_name}
@@ -171,7 +178,7 @@ patches:
   # - patch: |-
   #     - op: add
   #       path: /spec/template/metadata/annotations/run.googleapis.com~1secrets
-  #       value: "{SECRET_NAME}:projects/{gcp_project_id}/secrets/{SECRET_NAME}"
+  #       value: "{secret_env_name}:projects/{gcp_project_id}/secrets/{secret_name}"
   #   target:
   #     kind: Job
   #     name: {job_name}
@@ -181,10 +188,10 @@ patches:
   #     - op: add
   #       path: /spec/template/spec/template/spec/containers/0/env/-
   #       value:
-  #         name: {SECRET_ENV_VAR}
+  #         name: {secret_env_name}
   #         valueFrom:
   #           secretKeyRef:
-  #             name: {SECRET_NAME}
+  #             name: {secret_env_name}
   #             key: latest
   #   target:
   #     kind: Job
@@ -203,7 +210,7 @@ docker push {image_url}:{version}
 ### Step 2: Update Image in Kustomize
 
 ```bash
-cd infrastructure/cloudrunjob/{job_name}/overlays/production
+cd infrastructure/cloudrun_job/{job_name}/overlays/production
 kustomize edit set image IMAGE_URL={image_url}:{version}
 ```
 

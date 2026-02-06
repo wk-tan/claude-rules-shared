@@ -18,7 +18,7 @@ projects/{service_name}/
 ├── Dockerfile          # Container definition
 └── main.py             # Entry point (optional)
 
-infrastructure/cloudrun/{service_name}/
+infrastructure/cloudrun_service/{service_name}/
 ├── base/
 │   ├── service.yaml       # Base service definition
 │   └── kustomization.yaml
@@ -66,7 +66,7 @@ CMD ["python", "main.py"]
 
 ### Step 2: Create Base Service Manifest
 
-Create `infrastructure/cloudrun/{service_name}/base/service.yaml`:
+Create `infrastructure/cloudrun_service/{service_name}/base/service.yaml`:
 
 ```yaml
 apiVersion: serving.knative.dev/v1
@@ -86,7 +86,7 @@ spec:
         autoscaling.knative.dev/minScale: "0"
         autoscaling.knative.dev/maxScale: "2"
     spec:
-      serviceAccountName: {service_account}@PROJECT_ID.iam.gserviceaccount.com
+      serviceAccountName: {service_account_email}
       timeoutSeconds: 300
       containers:
       - name: {service_name}
@@ -136,12 +136,12 @@ resources:
 
 Create overlays for each required environment. Common options are sandbox, staging, and production — not all projects need all three.
 
-`infrastructure/cloudrun/{service_name}/overlays/{environment}/kustomization.yaml`:
+`infrastructure/cloudrun_service/{service_name}/overlays/{environment}/kustomization.yaml`:
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: data-{environment}-warehouse
+namespace: {gcp_project_id}
 
 resources:
   - ../../base
@@ -149,6 +149,37 @@ resources:
 images:
   - name: IMAGE_URL
     newName: IMAGE_URL_PLACEHOLDER
+
+patches:
+  # Service account
+  - patch: |-
+      - op: replace
+        path: /spec/template/spec/serviceAccountName
+        value: {service_account_email}
+    target:
+      kind: Service
+      name: {service_name}
+
+  # Environment variables (ENVIRONMENT and VERSION are in base; add remaining standard vars)
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: GCP_PROJECT_ID
+          value: {gcp_project_id}
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: GCP_REGION_ABBREV
+          value: GCP_REGION_ABBREV_PLACEHOLDER
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: GCP_REGION_SUFFIX
+          value: GCP_REGION_SUFFIX_PLACEHOLDER
+    target:
+      kind: Service
+      name: {service_name}
 ```
 
 ## Procedure: Deployment
@@ -159,7 +190,7 @@ docker build -f projects/{service_name}/Dockerfile -t {image_url}:{version} .
 docker push {image_url}:{version}
 
 # Update and deploy
-cd infrastructure/cloudrun/{service_name}/overlays/production
+cd infrastructure/cloudrun_service/{service_name}/overlays/production
 kustomize edit set image IMAGE_URL={image_url}:{version}
 kustomize build . | sed "s|VERSION_PLACEHOLDER|{version}|g" > /tmp/service.yaml
 gcloud run services replace /tmp/service.yaml --region=asia-southeast1
@@ -185,3 +216,8 @@ startupProbe:
 - `failureThreshold: 1` - Fails on first probe failure
 - `initialDelaySeconds: 0` - Probes before app starts
 - `timeoutSeconds: 1` - Too short for slow init
+
+## Reference Files
+
+- [dockerfile-template.md](references/dockerfile-template.md) - Full Dockerfile template
+- [kustomize-patches.md](references/kustomize-patches.md) - Common Kustomize patches

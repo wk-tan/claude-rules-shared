@@ -17,7 +17,7 @@ projects/{project_name}/
 ├── pyproject.toml      # Dependencies and brick references
 └── Dockerfile          # Container definition (functions-framework)
 
-infrastructure/cloudrunfunction/{function_name}/
+infrastructure/cloudrun_function/{function_name}/
 ├── base/
 │   ├── service.yaml       # Base service definition (Knative)
 │   └── kustomization.yaml
@@ -74,7 +74,7 @@ CMD exec functions-framework --target=${FUNCTION_TARGET} --port=${PORT}
 
 ### Step 2: Create Base Service Manifest
 
-Create `infrastructure/cloudrunfunction/{function_name}/base/service.yaml`:
+Create `infrastructure/cloudrun_function/{function_name}/base/service.yaml`:
 
 ```yaml
 apiVersion: serving.knative.dev/v1
@@ -134,7 +134,7 @@ spec:
 
 ### Step 3: Create Base Kustomization
 
-Create `infrastructure/cloudrunfunction/{function_name}/base/kustomization.yaml`:
+Create `infrastructure/cloudrun_function/{function_name}/base/kustomization.yaml`:
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -148,13 +148,13 @@ resources:
 
 Create overlays for each required environment. Common options are sandbox, staging, and production — not all projects need all three.
 
-`infrastructure/cloudrunfunction/{function_name}/overlays/{environment}/kustomization.yaml`:
+`infrastructure/cloudrun_function/{function_name}/overlays/{environment}/kustomization.yaml`:
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: data-{environment}-warehouse
+namespace: {gcp_project_id}
 
 resources:
   - ../../base
@@ -164,7 +164,7 @@ images:
     newName: IMAGE_URL_PLACEHOLDER
 
 patches:
-  # Patch for autoscaling
+  # Autoscaling
   - patch: |-
       - op: add
         path: /spec/template/metadata/annotations/autoscaling.knative.dev~1maxScale
@@ -173,16 +173,16 @@ patches:
       kind: Service
       name: {function_name}
 
-  # Patch for service account
+  # Service account
   - patch: |-
       - op: add
         path: /spec/template/spec/serviceAccountName
-        value: {service_account}@data-{environment}-warehouse.iam.gserviceaccount.com
+        value: {service_account_email}
     target:
       kind: Service
       name: {function_name}
 
-  # Patch for environment variables
+  # Environment variables
   - patch: |-
       - op: add
         path: /spec/template/spec/containers/0/env/-
@@ -193,7 +193,7 @@ patches:
         path: /spec/template/spec/containers/0/env/-
         value:
           name: ENVIRONMENT
-          value: {environment}
+          value: production
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
@@ -203,12 +203,7 @@ patches:
         path: /spec/template/spec/containers/0/env/-
         value:
           name: GCP_PROJECT_ID
-          value: data-{environment}-warehouse
-      - op: add
-        path: /spec/template/spec/containers/0/env/-
-        value:
-          name: GCP_REGION
-          value: GCP_REGION_PLACEHOLDER
+          value: {gcp_project_id}
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:
@@ -236,7 +231,7 @@ docker push {image_url}:{version}
 ### Step 2: Update Image in Kustomize
 
 ```bash
-cd infrastructure/cloudrunfunction/{function_name}/overlays/{environment}
+cd infrastructure/cloudrun_function/{function_name}/overlays/{environment}
 kustomize edit set image IMAGE_URL={image_url}:{version}
 ```
 
@@ -251,10 +246,15 @@ gcloud run services replace /tmp/service.yaml --region=asia-southeast1
 
 | Aspect | Cloud Run Function | Service / Job |
 |--------|-------------------|---------------|
-| Infra Directory | `cloudrunfunction/` | `cloudrun/` or `cloudrunjob/` |
+| Infra Directory | `cloudrun_function/` | `cloudrun_service/` or `cloudrun_job/` |
 | Framework | `functions-framework` | Direct `python main.py` |
 | Entry Point | `FUNCTION_TARGET` env var | Hardcoded in CMD |
 | Startup Probe | `tcpSocket` | `httpGet` or None |
 | containerConcurrency | `1` | Default or N/A |
 | Labels | `workload-type: cloud-function` | Custom |
 | Annotations | `cloudfunctions.googleapis.com/*` | `run.googleapis.com/*` |
+
+## Reference Files
+
+- [dockerfile-template.md](references/dockerfile-template.md) - Full Dockerfile template
+- [kustomize-patches.md](references/kustomize-patches.md) - Common Kustomize patches

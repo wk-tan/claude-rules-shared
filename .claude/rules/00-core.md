@@ -44,6 +44,8 @@ workspace-root/
 | uv | 0.7.8 | CI/CD workflows, Dockerfiles |
 | Build backend | hatchling + hatch-polylith-bricks | `[build-system]` |
 
+These versions are intentionally pinned. Do not upgrade unless explicitly requested.
+
 ---
 
 ## 3. Python Code Standards
