@@ -34,6 +34,17 @@ workspace-root/
 - **Namespace level** (`{namespace}/`): NO `__init__.py` — Python auto-treats as namespace package
 - **Brick level** (`{namespace}/logging/`): HAS `__init__.py` — created by Polylith CLI
 
+### Brick Creation Rule
+
+Bricks MUST be created via the Polylith CLI — never manually:
+
+```bash
+uv run poly create component --name {brick_name}
+uv run poly create base --name {brick_name}
+```
+
+For step-by-step procedures, project configuration, and code sharing principles, load the `polylith-new-brick` skill.
+
 ---
 
 ## 2. Tool Versions
@@ -80,6 +91,8 @@ uv sync               # Local dev
 uv lock --upgrade     # Update dependencies
 ```
 
+For detailed procedures, decision trees, and troubleshooting, load the `dependency-management` skill.
+
 ---
 
 ## 5. Infrastructure Separation
@@ -114,10 +127,13 @@ Infrastructure and application code have different lifecycles — keep them sepa
 |------|--------------|---------|
 | `feat` | MINOR | `feat(pipeline): add deduplication` |
 | `fix` | PATCH | `fix(logging): correct DSN config` |
+| `perf` | PATCH | `perf(db): optimize query execution` |
 | `docs`, `style`, `refactor`, `test`, `chore`, `ci`, `build` | None | `docs: update README` |
 | `!` or `BREAKING CHANGE:` | MAJOR | `feat(api)!: remove endpoint` |
 
 **Subject rules**: imperative mood, lowercase, no period, max 72 chars
+
+For commit message examples, PR conventions, and workspace version management, load the `semantic-release` skill.
 
 ### Branch Naming
 
@@ -126,6 +142,15 @@ Infrastructure and application code have different lifecycles — keep them sepa
 ```
 
 Example: `feat/DA-687-migrate-to-uv`
+
+### Pre-commit Hooks
+
+Pre-commit hooks MUST be installed before making any git commit. Before committing:
+
+1. Verify hooks are installed: `uv run pre-commit install`
+2. Never bypass hooks with `--no-verify`
+
+For standard configuration, hook descriptions, and troubleshooting, load the `pre-commit-hooks` skill.
 
 ---
 
@@ -137,6 +162,8 @@ Example: `feat/DA-687-migrate-to-uv`
 - Use `uv sync --frozen` in CI/CD
 - Commit `uv.lock` always
 - Keep infrastructure in `infrastructure/` directory
+- Create bricks via `uv run poly create` CLI
+- Ensure pre-commit hooks are installed before committing
 
 ### Never Do This
 
@@ -144,3 +171,5 @@ Example: `feat/DA-687-migrate-to-uv`
 - Use `uv sync` without `--frozen` in CI/CD
 - Hardcode Python version in workflows (use `python-version-file`)
 - Mix infrastructure with application code in `projects/`
+- Create brick directories manually (always use poly CLI)
+- Bypass pre-commit hooks with `--no-verify`

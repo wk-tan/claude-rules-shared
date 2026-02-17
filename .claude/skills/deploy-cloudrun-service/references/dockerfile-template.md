@@ -23,7 +23,7 @@ COPY components/{namespace}/{component2}/ ./{namespace}/{component2}/
 COPY bases/{namespace}/{base_name}/ ./{namespace}/{base_name}/
 
 # Copy static assets (if needed)
-# COPY .streamlit/ .streamlit/
+# COPY .streamlit/ ./.streamlit/
 
 RUN mv {namespace}/{base_name}/core.py main.py
 
@@ -77,13 +77,13 @@ CMD ["gunicorn", "--bind", "0.0.0.0:8080", "main:app"]
 
 ## Differences from Function and Job
 
-| Aspect | Service | Function | Job |
-|--------|---------|----------|-----|
-| Framework | App-specific (Flask, Streamlit, etc.) | `functions-framework` | Direct `python main.py` |
-| CMD | Varies by framework | `exec functions-framework --target=${FUNCTION_TARGET} --port=${PORT}` | `["python", "main.py"]` |
-| System deps | May need `apt-get` packages | Typically none | Typically none |
-| Static assets | May need config files, templates | None | None |
-| PORT/EXPOSE | Required | Required | Not needed |
+| Aspect        | Service                               | Function                                                              | Job                     |
+| ------------- | ------------------------------------- | --------------------------------------------------------------------- | ----------------------- |
+| Framework     | App-specific (Flask, Streamlit, etc.) | `functions-framework`                                                 | Direct `python main.py` |
+| CMD           | Varies by framework                   | `exec functions-framework --target=${FUNCTION_TARGET} --port=${PORT}` | `["python", "main.py"]` |
+| System deps   | May need `apt-get` packages           | Typically none                                                        | Typically none          |
+| Static assets | May need config files, templates      | None                                                                  | None                    |
+| PORT/EXPOSE   | Required                              | Required                                                              | Not needed              |
 
 ## Build Command
 

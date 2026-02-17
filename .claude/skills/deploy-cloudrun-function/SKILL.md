@@ -60,7 +60,7 @@ RUN mv {namespace}/{base_name}/core.py main.py
 ENV PORT=8080
 EXPOSE 8080
 
-# Add venv to PATH so functions-framework can be found
+# Enable venv in PATH so functions-framework can be found
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Run with functions-framework

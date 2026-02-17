@@ -10,6 +10,10 @@ Use this skill when the user asks to:
 - Sync or install dependencies
 - Fix dependency issues
 
+## Context
+
+This skill implements the dependency management procedures for Core Rules §4. See Core Rules for the CRITICAL subset rule and workspace vs project configuration requirements.
+
 ## Quick Reference
 
 | Action | Command |
@@ -22,6 +26,7 @@ Use this skill when the user asks to:
 | Sync (local dev) | `uv sync` |
 | Sync (CI/CD) | `uv sync --frozen` |
 | Get package version from lock | `uv tree --package <package> --depth 0 --frozen` |
+| Get/set package version | `uv version --package <package> [version]` |
 
 ## Procedure: Adding Dependencies
 

@@ -17,6 +17,8 @@ Before creating any brick:
 
 The namespace is defined in `workspace.toml` and used automatically by the CLI.
 
+**Note**: Core Rules §1 defines the brick creation policy. This skill provides step-by-step procedures.
+
 ## Procedure: Creating Components or Bases
 
 ### Step 1: Create Brick with Polylith CLI

@@ -58,9 +58,11 @@ COPY components/{namespace}/settings/ ./{namespace}/settings/
 COPY bases/{namespace}/{base_name}/ ./{namespace}/{base_name}/
 RUN mv {namespace}/{base_name}/core.py main.py
 
-ENV PATH="/app/.venv/bin:$PATH"
-ENV PORT=8080
 EXPOSE 8080
+
+# Enable venv in PATH
+ENV PATH="/app/.venv/bin:$PATH"
+
 CMD ["python", "main.py"]
 ```
 
@@ -95,8 +97,6 @@ spec:
         - containerPort: 8080
           name: http1
         env:
-        - name: ENVIRONMENT
-          value: ENVIRONMENT_PLACEHOLDER
         - name: VERSION
           value: VERSION_PLACEHOLDER
         startupProbe:
@@ -160,8 +160,13 @@ patches:
       kind: Service
       name: {service_name}
 
-  # Environment variables (ENVIRONMENT and VERSION are in base; add remaining standard vars)
+  # Environment variables (VERSION is in base; add ENVIRONMENT and remaining standard vars)
   - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: ENVIRONMENT
+          value: production
       - op: add
         path: /spec/template/spec/containers/0/env/-
         value:

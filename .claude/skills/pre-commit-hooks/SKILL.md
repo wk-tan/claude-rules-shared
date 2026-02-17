@@ -10,6 +10,8 @@ Use this skill when the user asks to:
 - Fix pre-commit hook issues
 - Add commit message validation
 
+**Note**: Core Rules §7 mandates that pre-commit hooks must be installed before committing. This skill provides setup procedures.
+
 ## Standard Configuration
 
 Create `.pre-commit-config.yaml` at workspace root:
