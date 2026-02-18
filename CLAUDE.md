@@ -15,9 +15,7 @@ When a task matches a skill trigger below, read the skill's `SKILL.md` before pr
 | -------------------------- | ----------------------------------------------------------------------------- |
 | `polylith-new-brick`       | Creating components, bases, or projects                                       |
 | `dependency-management`    | Adding/updating dependencies                                                  |
-| `deploy-cloudrun-function` | Deploying Cloud Run Functions                                                 |
-| `deploy-cloudrun-service`  | Deploying Cloud Run Services                                                  |
-| `deploy-cloudrun-job`      | Deploying Cloud Run Jobs                                                      |
+| `deploy-cloudrun`          | Deploying Cloud Run Jobs, Services, or Functions                              |
 | `github-actions-cicd`      | Creating/modifying workflows                                                  |
 | `pulumi-infrastructure`    | Infrastructure provisioning                                                   |
 | `semantic-release`         | Release workflows, versioning                                                 |

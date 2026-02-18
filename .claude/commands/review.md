@@ -6,7 +6,7 @@ I need a review. Check the following against our project rules and skills.
 
 ## Rules for this session
 
-1. **Load relevant skills.** Before reviewing, read the skills that apply to what you're reviewing (e.g. `python-code-standards` for code, `deploy-cloudrun-job` for job manifests, `pulumi-infrastructure` for IaC).
+1. **Load relevant skills.** Before reviewing, read the skills that apply to what you're reviewing (e.g. `python-code-standards` for code, `deploy-cloudrun` for Cloud Run manifests, `pulumi-infrastructure` for IaC).
 2. **Be specific.** Point to exact files and lines. Do not give generic advice.
 3. **Categorize findings.** Use: 🔴 Must fix (bugs, convention violations, security) → 🟡 Should fix (maintainability, clarity) → 🟢 Nitpick (style preferences).
 4. **No changes.** Do not modify any files. Provide findings as a summary I can act on.
