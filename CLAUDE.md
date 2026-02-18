@@ -11,15 +11,26 @@ When a task matches a skill trigger below, read the skill's `SKILL.md` before pr
 
 ### Available Skills
 
-| Skill | Trigger |
-|-------|---------|
-| `polylith-new-brick` | Creating components, bases, or projects |
-| `dependency-management` | Adding/updating dependencies |
-| `deploy-cloudrun-function` | Deploying Cloud Run Functions |
-| `deploy-cloudrun-service` | Deploying Cloud Run Services |
-| `deploy-cloudrun-job` | Deploying Cloud Run Jobs |
-| `github-actions-cicd` | Creating/modifying workflows |
-| `pulumi-infrastructure` | Infrastructure provisioning |
-| `semantic-release` | Release workflows, versioning |
-| `pre-commit-hooks` | Setting up git hooks |
-| `python-code-standards` | Writing/reviewing Python code: style, type hints, docstrings, naming, logging |
+| Skill                      | Trigger                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| `polylith-new-brick`       | Creating components, bases, or projects                                       |
+| `dependency-management`    | Adding/updating dependencies                                                  |
+| `deploy-cloudrun-function` | Deploying Cloud Run Functions                                                 |
+| `deploy-cloudrun-service`  | Deploying Cloud Run Services                                                  |
+| `deploy-cloudrun-job`      | Deploying Cloud Run Jobs                                                      |
+| `github-actions-cicd`      | Creating/modifying workflows                                                  |
+| `pulumi-infrastructure`    | Infrastructure provisioning                                                   |
+| `semantic-release`         | Release workflows, versioning                                                 |
+| `pre-commit-hooks`         | Setting up git hooks                                                          |
+| `python-code-standards`    | Writing/reviewing Python code: style, type hints, docstrings, naming, logging |
+| `planning-session`         | Planning tasks, designing solutions, architecture discussions                 |
+
+### Available Commands
+
+| Command        | Purpose                                                       |
+| -------------- | ------------------------------------------------------------- |
+| `/plan`        | Start a structured planning session using the plan template   |
+| `/implement`   | Execute an approved plan phase by phase with stop-gates       |
+| `/investigate` | Diagnose and debug an issue without making changes            |
+| `/review`      | Review code or architecture against project conventions       |
+| `/prototype`   | Rapid prototyping and experimentation with relaxed guardrails |
