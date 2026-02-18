@@ -10,4 +10,6 @@ Fill in sections only as I provide information — do not assume or invent detai
 
 Do not proceed to implementation. That happens in a separate session with the approved plan.
 
-Here is what I want to plan: $ARGUMENTS
+Here is what I'm thinking about: $ARGUMENTS
+
+If my description is vague or incomplete, start by asking clarifying questions to help me shape the objective before filling in the template.
