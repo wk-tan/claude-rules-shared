@@ -10,6 +10,14 @@ Use this skill when the user asks to:
 - Run a planning session or architecture discussion
 - Create a plan document for later execution
 
+<HARD-GATE>
+Do NOT invoke any implementation skill, execute any commands, generate application code, or create infrastructure files until you have presented a plan and the user has explicitly approved it. This applies to EVERY task regardless of perceived simplicity. When the plan is approved, your ONLY next action is to save the plan and tell the user to start a new session with `/implement`. You do NOT start implementing.
+</HARD-GATE>
+
+### Anti-Pattern: "This Is Too Simple To Need A Plan"
+
+Every task goes through this process. A config change, a single table addition, a one-line pipeline fix. The plan can be short (a few sentences for truly simple tasks), but it must exist and be approved. "Simple" tasks are where unexamined assumptions cause the most wasted work.
+
 ## Behavior Rules
 
 This skill changes how Claude operates for the duration of the session.
@@ -37,43 +45,52 @@ Read `references/plan-template.md` and use it as the skeleton for the plan.
 
 ### Step 2: Clarify Objective
 
-Ask the user to describe what they want to achieve. Fill in **§1 Objective** and **§2 Context & Constraints** based on their input. Ask about:
+Ask the user to describe what they want to achieve. Fill in **§1 Objective** and **§2 Context & Constraints** based on their input. Record the selected approach in **§3 Alternatives Considered**. Ask about:
 - Target GCP project(s) and environment(s)
 - Key services involved
 - Upstream/downstream dependencies
 - Known constraints or risks
 
-### Step 3: Establish Current and Target State
+### Step 3: Propose Approaches
 
-Fill in **§3 Current State** and **§4 Target State**. If the user is unclear on either, help them articulate it before moving on.
+Propose 2-3 different approaches with trade-offs. Lead with your recommendation and explain why. Present options conversationally. The user picks one before you fill in the rest of the plan.
 
-### Step 4: Break Down into Phases
+If only one viable approach exists, state why and confirm the user agrees — don't fabricate alternatives.
 
-Decompose the work into phases in **§5 Phases & Tasks**. Each phase must have:
+### Step 4: Establish Current and Target State
+
+Fill in **§4 Current State** and **§5 Target State**. If the user is unclear on either, help them articulate it before moving on.
+
+### Step 5: Break Down into Phases
+
+Decompose the work into phases in **§6 Phases & Tasks**. Each phase must have:
 - A clear goal
 - Concrete tasks with enough detail for implementation
 - A **stop-gate** — during implementation, Claude pauses after each phase for the user's go/no-go
 
-### Step 5: Define Validation and Rollback
+### Step 6: Define Validation and Rollback
 
-Fill in **§6 Validation & Testing** and **§7 Rollback Plan**. These are non-optional — every plan must address how to verify success and how to undo changes.
+Fill in **§7 Validation & Testing** (include the Phase column so checks can be scoped to phases during execution) and **§8 Rollback Plan**. These are non-optional — every plan must address how to verify success and how to undo changes.
 
-### Step 6: Capture Open Items
+### Step 7: Capture Open Items
 
-Record unresolved decisions in **§8 Open Questions**. The plan is not ready for implementation until all open questions are resolved or explicitly deferred.
+Record unresolved decisions in **§9 Open Questions**. The plan is not ready for implementation until all open questions are resolved or explicitly deferred.
 
-### Step 7: Deliver the Plan
+### Step 8: Deliver the Plan
 
 Present the completed plan as a markdown file for the user to review.
 
-## Using the Plan in an Implementation Session
+## After Plan Approval
 
-When starting a new session to execute an approved plan, the user should:
-1. Paste or attach the approved plan
-2. Instruct Claude to execute phase by phase, stopping after each phase for review
-3. State which resources already exist (to avoid recreation)
-4. Specify error-handling preference (stop on first error vs. attempt fix and continue)
-5. Name the target GCP project and environment explicitly
+1. Save the plan to `plans/YYYY-MM-DD-<topic>.md`.
+2. State: "Plan saved to `<path>`. To execute, run `/implement <path>` in a new session or this session."
+3. **STOP.** Do not begin implementation. Do not offer to "get started." Do not generate code. The planning session is complete.
+
+## Integration
+
+- **Produces:** Plan document consumed by `executing-plans` skill.
+- **Next step:** `/implement <plan-path>` (invokes `executing-plans`).
+- **Related:** `verification-before-completion` is used during execution, not during planning.
 
 ## Reference Files
 

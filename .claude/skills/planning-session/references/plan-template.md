@@ -22,15 +22,21 @@ _What are we trying to achieve? One or two sentences._
 | Downstream Consumers | |
 | Constraints / Risks | e.g. budget, SLAs, data sensitivity, deployment windows |
 
-## 3. Current State
+## 3. Alternatives Considered
+
+| Approach | Pros | Cons | Selected? |
+|----------|------|------|-----------|
+| | | | |
+
+## 4. Current State
 
 _Brief description of how things work today (or why they don't)._
 
-## 4. Target State
+## 5. Target State
 
 _What does "done" look like? Include a diagram reference if applicable._
 
-## 5. Phases & Tasks
+## 6. Phases & Tasks
 
 ### Phase 1 – [Name]
 > **Goal:** ...
@@ -61,22 +67,22 @@ _What does "done" look like? Include a diagram reference if applicable._
 
 _Add or remove phases as needed._
 
-## 6. Validation & Testing
+## 7. Validation & Testing
 
-| Check | Method | Expected Result |
-|-------|--------|-----------------|
-| | | |
+| Phase | Check | Method | Expected Result |
+|-------|-------|--------|-----------------|
+| | | | |
 
-## 7. Rollback Plan
+## 8. Rollback Plan
 
 _How do we undo this if something goes wrong?_
 
-## 8. Open Questions / Decisions
+## 9. Open Questions / Decisions
 
 - [ ] ...
 - [ ] ...
 
-## 9. Session Notes
+## 10. Session Notes
 
 _Running log of decisions made during planning._
 
