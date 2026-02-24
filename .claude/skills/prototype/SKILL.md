@@ -1,5 +1,7 @@
 ---
-description: Rapid prototyping and experimentation mode with fast iteration
+name: prototype
+description: "Rapid prototyping and experimentation with fast iteration."
+argument-hint: "<what to prototype>"
 ---
 
 I want to prototype something. This is an experimental session — speed over polish.

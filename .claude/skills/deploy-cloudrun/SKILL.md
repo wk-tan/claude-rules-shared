@@ -1,16 +1,10 @@
+---
+description: "Use when deploying Cloud Run Jobs, Services, or Functions, or creating Dockerfiles and Kustomize manifests for Cloud Run."
+---
+
 # Deploy Cloud Run
 
 Deploy containerized workloads to Cloud Run using Docker and Kustomize. Covers Jobs, Services, and Functions.
-
-## Trigger
-
-Use this skill when the user asks to:
-- Deploy a Cloud Run Job, Service, or Function
-- Create a batch processing job (Job)
-- Set up an always-running HTTP service or API (Service)
-- Deploy a Cloud Function (Function)
-- Create Dockerfile or Kustomize manifests for Cloud Run
-- Configure health checks, autoscaling, or probes for Cloud Run
 
 ## Choosing the Right Type
 

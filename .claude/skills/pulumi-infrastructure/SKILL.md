@@ -1,14 +1,10 @@
+---
+description: "Use when provisioning GCP infrastructure with Pulumi, including service accounts, BigQuery tables, Cloud Storage, and Cloud Scheduler."
+---
+
 # Pulumi Infrastructure
 
 Provision GCP infrastructure using Pulumi IaC patterns.
-
-## Trigger
-
-Use this skill when the user asks to:
-- Add new infrastructure resources (service accounts, buckets, BigQuery tables)
-- Modify Pulumi stack configuration
-- Set up Cloud Scheduler jobs
-- Add Artifact Registry repositories
 
 ## Directory Structure
 

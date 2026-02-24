@@ -1,5 +1,7 @@
 ---
-description: Investigate and diagnose an issue without making changes
+name: investigate
+description: "Diagnose and debug an issue without making changes."
+argument-hint: "<issue description>"
 ---
 
 I need help investigating an issue. This is a diagnosis session.

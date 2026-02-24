@@ -1,14 +1,10 @@
+---
+description: "Use when writing or reviewing Python code for style, type hints, docstrings, naming conventions, or structured logging."
+---
+
 # Python Code Standards
 
 Python code quality standards and conventions for this workspace.
-
-## Trigger
-
-Use this skill when the user asks to:
-- Review code style or formatting
-- Add docstrings or type hints
-- Understand naming conventions
-- Fix linting or type errors
 
 ## Quality Tools
 

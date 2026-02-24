@@ -1,14 +1,10 @@
+---
+description: "Use when creating or modifying GitHub Actions workflows and CI/CD pipelines."
+---
+
 # GitHub Actions CI/CD
 
 Create and maintain GitHub Actions workflows following project standards.
-
-## Trigger
-
-Use this skill when the user asks to:
-- Create a GitHub Actions workflow
-- Set up CI/CD for a project
-- Fix workflow issues
-- Add new workflow jobs
 
 ## Standard Setup Pattern
 

@@ -1,14 +1,11 @@
+---
+description: "Start a structured planning session — explores requirements and design before implementation."
+argument-hint: "<objective or topic to plan>"
+---
+
 # Planning Session
 
 Structured planning mode for designing data platform changes before implementation.
-
-## Trigger
-
-Use this skill when the user asks to:
-- Plan a new feature, pipeline, or infrastructure change
-- Design a solution before implementing
-- Run a planning session or architecture discussion
-- Create a plan document for later execution
 
 <HARD-GATE>
 Do NOT invoke any implementation skill, execute any commands, generate application code, or create infrastructure files until you have presented a plan and the user has explicitly approved it. This applies to EVERY task regardless of perceived simplicity. When the plan is approved, your ONLY next action is to save the plan and tell the user to start a new session with `/implement`. You do NOT start implementing.
@@ -38,6 +35,8 @@ This skill changes how Claude operates for the duration of the session.
 - Skip sections silently — flag them as open questions instead
 
 ## Procedure
+
+If invoked with arguments, use them as the initial objective. If invoked without arguments, ask the user to describe what they want to achieve.
 
 ### Step 1: Load Template
 
@@ -88,8 +87,8 @@ Present the completed plan as a markdown file for the user to review.
 
 ## Integration
 
-- **Produces:** Plan document consumed by `executing-plans` skill.
-- **Next step:** `/implement <plan-path>` (invokes `executing-plans`).
+- **Produces:** Plan document consumed by `implement` skill.
+- **Next step:** `/implement <plan-path>` (invokes `implement`).
 - **Related:** `verification-before-completion` is used during execution, not during planning.
 
 ## Reference Files

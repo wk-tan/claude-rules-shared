@@ -1,12 +1,11 @@
+---
+description: "Execute an approved plan phase by phase with verification gates."
+argument-hint: "<path to approved plan file>"
+---
+
 # Executing Plans
 
 Phase execution with verification gates. Follow the plan exactly — flag deviations, don't silently adjust.
-
-## Trigger
-
-Use this skill when:
-- You have a written, approved implementation plan to execute phase by phase
-- The user runs `/implement` or asks to execute a plan
 
 ## Procedure
 
@@ -75,5 +74,5 @@ State: "I'm blocked on task X.Y. Here's the error: [error]. How would you like m
 ## Integration
 
 - **REQUIRED:** `verification-before-completion` at every phase boundary.
-- **Consumes:** Plan document produced by `planning-session` skill.
+- **Consumes:** Plan document produced by `design` skill.
 - **Related:** `review` skill (suggested after all phases complete).
