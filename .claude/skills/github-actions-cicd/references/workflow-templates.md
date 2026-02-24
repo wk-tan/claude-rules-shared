@@ -49,9 +49,6 @@ jobs:
         with:
           version: "0.7.8"
 
-      - run: uv sync --frozen --group release
-      - run: echo "$PWD/.venv/bin" >> $GITHUB_PATH
-
       - name: "Authenticate to Google Cloud"
         uses: google-github-actions/auth@v3
         with:
