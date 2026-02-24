@@ -1,14 +1,10 @@
+---
+description: "Use when writing commit messages, creating releases, or understanding version bumps with conventional commits."
+---
+
 # Semantic Release
 
 Manage automated versioning and releases using conventional commits.
-
-## Trigger
-
-Use this skill when the user asks to:
-- Write commit messages
-- Create a release
-- Understand version bumps
-- Fix commit message format
 
 ## Commit Message Format
 

@@ -1,14 +1,10 @@
+---
+description: "Use when setting up, configuring, or troubleshooting pre-commit hooks for code quality enforcement."
+---
+
 # Pre-commit Hooks
 
 Set up and manage pre-commit hooks for code quality enforcement.
-
-## Trigger
-
-Use this skill when the user asks to:
-- Set up pre-commit hooks
-- Configure code quality hooks
-- Fix pre-commit hook issues
-- Add commit message validation
 
 **Note**: Core Rules §7 mandates that pre-commit hooks must be installed before committing. This skill provides setup procedures.
 

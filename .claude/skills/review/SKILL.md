@@ -1,5 +1,7 @@
 ---
-description: Review code or architecture against project conventions and best practices
+name: review
+description: "Review code or architecture against project conventions and best practices."
+argument-hint: "<files, PR, or area to review>"
 ---
 
 I need a review. Check the following against our project rules and skills.

@@ -1,14 +1,10 @@
+---
+description: "Use when adding, removing, updating, or troubleshooting Python dependencies with uv."
+---
+
 # Dependency Management
 
 Manage Python dependencies with uv following workspace conventions.
-
-## Trigger
-
-Use this skill when the user asks to:
-- Add or remove a dependency
-- Update dependencies
-- Sync or install dependencies
-- Fix dependency issues
 
 ## Context
 

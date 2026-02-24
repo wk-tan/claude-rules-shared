@@ -1,13 +1,10 @@
+---
+description: "Use when creating new Polylith components, bases, or projects in the workspace."
+---
+
 # Polylith New Brick
 
 Create new Polylith bricks (components, bases) and projects following workspace conventions.
-
-## Trigger
-
-Use this skill when the user asks to:
-- Create a new component or base
-- Add a new project to the workspace
-- Set up a new Polylith brick
 
 ## Prerequisites
 

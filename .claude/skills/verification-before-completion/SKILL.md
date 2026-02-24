@@ -1,14 +1,10 @@
+---
+description: "Use when about to claim work is complete, a phase is done, a fix is applied, or a deployment has succeeded. Requires verification evidence before any success claims."
+---
+
 # Verification Before Completion
 
 Evidence before claims, always. Requires running verification commands and confirming output before making any success claims.
-
-## Trigger
-
-Use this skill when about to:
-- Claim work is complete
-- Claim a phase is done
-- Claim a fix is applied
-- Claim a deployment has succeeded
 
 ## Iron Law
 
